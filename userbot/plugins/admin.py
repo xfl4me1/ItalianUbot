@@ -31,17 +31,17 @@ from userbot import BOTLOG, BOTLOG_CHATID, CMD_HELP, bot
 from userbot.utils import register, errors_handler, admin_cmd
 
 # =================== CONSTANT ===================
-PP_TOO_SMOL = "`The image is too small`"
-PP_ERROR = "`Failure while processing the image`"
-NO_ADMIN = "`I am not an admin nub nibba!`"
-NO_PERM = "`I don't have sufficient permissions! This is so sed. Alexa play despacito`"
+PP_TOO_SMOL = "`L'immagine è troppo piccola`"
+PP_ERROR = "`Errore durante il processo dell'immagine`"
+NO_ADMIN = "`Non sono un admin!`"
+NO_PERM = "`Non ho i permessi sufficienti! Questo è molto triste. Alexa riproduci despacito`"
 NO_SQL = "`Running on Non-SQL mode!`"
 
-CHAT_PP_CHANGED = "`Chat Picture Changed`"
-CHAT_PP_ERROR = "`Some issue with updating the pic,`" \
-                "`maybe coz I'm not an admin,`" \
-                "`or don't have enough rights.`"
-INVALID_MEDIA = "`Invalid Extension`"
+CHAT_PP_CHANGED = "`Foto della chat cambiata`"
+CHAT_PP_ERROR = "`Errore mentre cambiavo l'immagine,`" \
+                "`forse perchè non sono un admin,`" \
+                "`o non ho i permessi necessari.`"
+INVALID_MEDIA = "`Formato non valido`"
 
 BANNED_RIGHTS = ChatBannedRights(
     until_date=None,
@@ -72,12 +72,12 @@ UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 # ================================================
 
 
-@register(outgoing=True, pattern="^.setgpic$")
+@register(outgoing=True, pattern="^.impostafotogruppo$")
 @errors_handler
 async def set_group_photo(gpic):
-    """ For .setgpic command, changes the picture of a group """
+    """ For .impostafotogruppo command, changes the picture of a group """
     if not gpic.is_group:
-        await gpic.edit("`I don't think this is a group.`")
+        await gpic.edit("`Non penso che questo sia un gruppo.`")
         return
     replymsg = await gpic.get_reply_message()
     chat = await gpic.get_chat()
@@ -110,10 +110,10 @@ async def set_group_photo(gpic):
             await gpic.edit(PP_ERROR)
 
 
-@register(outgoing=True, pattern="^.promote(?: |$)(.*)")
+@register(outgoing=True, pattern="^.promuovi(?: |$)(.*)")
 @errors_handler
 async def promote(promt):
-    """ For .promote command, promotes the replied/tagged person """
+    """ Per il comando .promuovi, promuove la persona in risposta o taggata. """
     # Get targeted chat
     chat = await promt.get_chat()
     # Grab admin status or creator in a chat
@@ -132,7 +132,7 @@ async def promote(promt):
                                  delete_messages=True,
                                  pin_messages=True)
 
-    await promt.edit("`Promoting...`")
+    await promt.edit("`Promozione...`")
     user, rank = await get_user_from_event(promt)
     if not rank:
         rank = "admeme"  # Just in case.
@@ -145,7 +145,7 @@ async def promote(promt):
     try:
         await promt.client(
             EditAdminRequest(promt.chat_id, user.id, new_rights, rank))
-        await promt.edit("`Promoted Successfully! Now gib Party`")
+        await promt.edit("`Promosso con successo!`")
 
     # If Telethon spit BadRequestError, assume
     # we don't have Promote permission
@@ -156,15 +156,15 @@ async def promote(promt):
     # Announce to the logging group if we have promoted successfully
     if BOTLOG:
         await promt.client.send_message(
-            BOTLOG_CHATID, "#PROMOTE\n"
-            f"USER: [{user.first_name}](tg://user?id={user.id})\n"
+            BOTLOG_CHATID, "#PROMOZIONE\n"
+            f"UTENTE: [{user.first_name}](tg://user?id={user.id})\n"
             f"CHAT: {promt.chat.title}(`{promt.chat_id}`)")
 
 
-@register(outgoing=True, pattern="^.demote(?: |$)(.*)")
+@register(outgoing=True, pattern="^.retrocedi(?: |$)(.*)")
 @errors_handler
 async def demote(dmod):
-    """ For .demote command, demotes the replied/tagged person """
+    """ Per il commando .retrocedi, retrocede la persona in risposta o taggata """
     # Admin right check
     chat = await dmod.get_chat()
     admin = chat.admin_rights
@@ -175,7 +175,7 @@ async def demote(dmod):
         return
 
     # If passing, declare that we're going to demote
-    await dmod.edit("`Demoting...`")
+    await dmod.edit("`Retrocessione...`")
     rank = "admeme"  # dummy rank, lol.
     user = await get_user_from_event(dmod)
     user = user[0]
@@ -201,13 +201,13 @@ async def demote(dmod):
     except BadRequestError:
         await dmod.edit(NO_PERM)
         return
-    await dmod.edit("`Demoted this retard Successfully!`")
+    await dmod.edit("`Retrocesso questo ritardato con successo!`")
 
     # Announce to the logging group if we have demoted successfully
     if BOTLOG:
         await dmod.client.send_message(
-            BOTLOG_CHATID, "#DEMOTE\n"
-            f"USER: [{user.first_name}](tg://user?id={user.id})\n"
+            BOTLOG_CHATID, "#RETROCESSIONE\n"
+            f"UTENTE: [{user.first_name}](tg://user?id={user.id})\n"
             f"CHAT: {dmod.chat.title}(`{dmod.chat_id}`)")
 
 
@@ -239,7 +239,7 @@ async def _(event):
     except (Exception) as exc:
         await event.edit(str(exc))
     else:
-        await event.edit(f"{input_cmd}ned Successfully!")
+        await event.edit(f"{input_cmd}ned con successo!")
 
 
 @borg.on(admin_cmd(pattern="pgs ?(.*)", allow_sudo=True))
@@ -269,7 +269,7 @@ async def _(event):
             msgs = []
             await event.delete()
         else:
-            await event.edit("**PURGE** Failed!")
+            await event.edit("**PURGE** fallito!")
 
 
 @borg.on(admin_cmd(pattern="(ban|unban) ?(.*)"))
@@ -300,7 +300,7 @@ async def _(event):
     except (Exception) as exc:
         await event.edit(str(exc))
     else:
-        await event.edit(f"{input_cmd}ned Successfully!")
+        await event.edit(f"{input_cmd}ned con successo!")
 
 
 @register(incoming=True)
@@ -338,7 +338,7 @@ async def muter(moot):
 @borg.on(admin_cmd(pattern="affk(?: |$)(.*)", allow_sudo=True))
 @errors_handler
 async def promote(promt):
-    """ For .promote command, promotes the replied/tagged person """
+    """ For .promuovi command, promotes the replied/tagged person """
     # Get targeted chat
     chat = await promt.get_chat()
     # Grab admin status or creator in a chat
@@ -353,7 +353,7 @@ async def promote(promt):
                                  delete_messages=True,
                                  pin_messages=True)
 
-    await promt.edit("`Promoting...`")
+    await promt.edit("`Promozione...`")
     user, rank = await get_user_from_event(promt)
     if not rank:
         rank = "admeme"  # Just in case.
@@ -366,7 +366,7 @@ async def promote(promt):
     try:
         await promt.client(
             EditAdminRequest(promt.chat_id, user.id, new_rights, rank))
-        await promt.edit("`Promoted Successfully! Now gib Party`")
+        await promt.edit("`Promosso con successo!`")
 
     # If Telethon spit BadRequestError, assume
     # we don't have Promote permission
@@ -377,15 +377,15 @@ async def promote(promt):
     # Announce to the logging group if we have promoted successfully
     if BOTLOG:
         await promt.client.send_message(
-            BOTLOG_CHATID, "#PROMOTE\n"
-            f"USER: [{user.first_name}](tg://user?id={user.id})\n"
+            BOTLOG_CHATID, "#PROMOZIONE\n"
+            f"UTENTE: [{user.first_name}](tg://user?id={user.id})\n"
             f"CHAT: {promt.chat.title}(`{promt.chat_id}`)")
 
 
 @register(outgoing=True, pattern="^.admins$")
 @errors_handler
 async def get_admin(show):
-    """ For .admins command, list all of the admins of the chat. """
+    """ Per il commando .admins, elenca tutti gli admin in una chat. """
     info = await show.client.get_entity(show.chat_id)
     title = info.title if info.title else "this chat"
     mentions = f'<b>Admins in {title}:</b> \n'
@@ -403,10 +403,10 @@ async def get_admin(show):
     await show.edit(mentions, parse_mode="html")
 
 
-@register(outgoing=True, pattern="^.pin(?: |$)(.*)")
+@register(outgoing=True, pattern="^.fissa(?: |$)(.*)")
 @errors_handler
 async def pin(msg):
-    """ For .pin command, pins the replied/tagged message on the top the chat. """
+    """ Per il commando .pin, fissa il messaggio in risposta. """
     # Admin or creator check
     chat = await msg.get_chat()
     admin = chat.admin_rights
@@ -420,7 +420,7 @@ async def pin(msg):
     to_pin = msg.reply_to_msg_id
 
     if not to_pin:
-        await msg.edit("`Reply to a message to pin it.`")
+        await msg.edit("`Rispondi ad un messaggio per fissarlo.`")
         return
 
     options = msg.pattern_match.group(1)
@@ -437,13 +437,13 @@ async def pin(msg):
         await msg.edit(NO_PERM)
         return
 
-    await msg.edit("`Pinned Successfully!`")
+    await msg.edit("`Fissato con successo!`")
 
     user = await get_user_from_id(msg.from_id, msg)
 
     if BOTLOG:
         await msg.client.send_message(
-            BOTLOG_CHATID, "#PIN\n"
+            BOTLOG_CHATID, "#FISSATO\n"
             f"ADMIN: [{user.first_name}](tg://user?id={user.id})\n"
             f"CHAT: {msg.chat.title}(`{msg.chat_id}`)\n"
             f"LOUD: {not is_silent}")
@@ -452,7 +452,7 @@ async def pin(msg):
 @register(outgoing=True, pattern="^.kick(?: |$)(.*)")
 @errors_handler
 async def kick(usr):
-    """ For .kick command, kicks the replied/tagged person from the group. """
+    """ Per il comando .kick, kicka la persona in risposta o taggata. """
     # Admin or creator check
     chat = await usr.get_chat()
     admin = chat.admin_rights
@@ -465,10 +465,10 @@ async def kick(usr):
 
     user, reason = await get_user_from_event(usr)
     if not user:
-        await usr.edit("`Couldn't fetch user.`")
+        await usr.edit("`Impossibile recuperare l'utente.`")
         return
 
-    await usr.edit("`Kicking...`")
+    await usr.edit("`Kickando...`")
 
     try:
         await usr.client.kick_participant(usr.chat_id, user.id)
@@ -479,26 +479,26 @@ async def kick(usr):
 
     if reason:
         await usr.edit(
-            f"`Kicked` [{user.first_name}](tg://user?id={user.id})`!`\nReason: {reason}"
+            f"`Kickato` [{user.first_name}](tg://user?id={user.id})`!`\nMotivo: {reason}"
         )
     else:
         await usr.edit(
-            f"`Kicked` [{user.first_name}](tg://user?id={user.id})`!`")
+            f"`Kickato` [{user.first_name}](tg://user?id={user.id})`!`")
 
     if BOTLOG:
         await usr.client.send_message(
             BOTLOG_CHATID, "#KICK\n"
-            f"USER: [{user.first_name}](tg://user?id={user.id})\n"
+            f"UTENTE: [{user.first_name}](tg://user?id={user.id})\n"
             f"CHAT: {usr.chat.title}(`{usr.chat_id}`)\n")
 
 
 @register(outgoing=True, pattern="^.users ?(.*)")
 @errors_handler
 async def get_users(show):
-    """ For .users command, list all of the users in a chat. """
+    """ Per il commando .users, mostra tutti gli utenti in una chat. """
     info = await show.client.get_entity(show.chat_id)
     title = info.title if info.title else "this chat"
-    mentions = 'Users in {}: \n'.format(title)
+    mentions = 'Utenti in {}: \n'.format(title)
     try:
         if not show.pattern_match.group(1):
             async for user in show.client.iter_participants(show.chat_id):
@@ -520,14 +520,14 @@ async def get_users(show):
         await show.edit(mentions)
     except MessageTooLongError:
         await show.edit(
-            "Damn, this is a huge group. Uploading users lists as file.")
+            "Cavolo, questo è un gruppo molto grande. Sto caricando la lista degli utenti come file.")
         file = open("userslist.txt", "w+")
         file.write(mentions)
         file.close()
         await show.client.send_file(
             show.chat_id,
             "userslist.txt",
-            caption='Users in {}'.format(title),
+            caption='Utenti in {}'.format(title),
             reply_to=show.id,
         )
         remove("userslist.txt")
@@ -585,14 +585,14 @@ async def get_user_from_id(user, event):
 
 CMD_HELP.update({
     "admin":
-    ".promote <username/reply> <custom rank (optional)>\
-\nUsage: Provides admin rights to the person in the chat.\
-\n\n.demote <username/reply>\
-\nUsage: Revokes the person's admin permissions in the chat.\
-\n\n.ban <username/reply> <reason (optional)>\
-\nUsage: Bans the person off your chat.\
-\n\n.unban <username/reply>\
-\nUsage: Removes the ban from the person in the chat.\
+    ".promuovi <username/risposta> <custom rank (optional)>\
+\nUtilizzo: Promuove ad admin una persona.\
+\n\n.retrocedi <username/risposta>\
+\nUtilizzo: Retrocede ad utente normale un admin.\
+\n\n.ban <username/risposta> <motivo (opzionale)>\
+\nUtilizzo: Banna una persona.\
+\n\n.unban <username/risposta>\
+\nUsage: Sbanna una persona.\
 \n\n.mute <username/reply> <reason (optional)>\
 \nUsage: Mutes the person in the chat, works on admins too.\
 \n\n.unmute <username/reply>\
